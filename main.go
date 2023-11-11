@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -23,6 +24,7 @@ var (
 	STRING_TYPE   string = "src="
 )
 
+/* NOTE: Unimplemented features */
 var SOURCES = map[string]string{
 	"bk":   "book",
 	"art":  "article",
@@ -46,9 +48,13 @@ func main() {
 	if FlagProxy == "" {
 		FlagProxy = TOR_PROXY
 	}
+
+	/* TODO: Add multiple sources
 	if FlagSrc == "" {
 		FlagSrc = "bk"
 	}
+	*/
+	FlagSrc = "bk"
 	client = NewTorProxyClient(FlagProxy)
 	log.Printf("Client is set.\n")
 	log.Printf("Setting request parameters...\n")
@@ -60,9 +66,10 @@ func main() {
 	Check(err)
 	defer resp.Body.Close()
 	log.Printf("Body received.\n")
+	log.Printf("Reading body...\n")
 	body, err := io.ReadAll(resp.Body)
-	//body, err := os.ReadFile("index.html")
 	Check(err)
+	log.Printf("Parsing body...\n")
 	doc, err := html.Parse(strings.NewReader(string(body)))
 	Check(err)
 	elems := MapElementsFormHTML(doc)
@@ -126,7 +133,7 @@ func DownloadWithClient(client *http.Client, URL, fileName string) error {
 		log.Printf("Received %d response code when downloading %s.", response.StatusCode, URL)
 		return errors.New("Download failed!")
 	}
-	file, err := os.Create(fileName)
+	file, err := os.Create(filepath.Join(FlagDest, fileName))
 	Check(err)
 	defer file.Close()
 
