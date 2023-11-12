@@ -2,23 +2,30 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"golang.org/x/net/html"
 )
 
-func MapElementsFormHTML(doc *html.Node) map[string]string {
+func MapElementsFromHTML(doc *html.Node, tag, attr string) map[string]string {
 	var titles []string
 
 	hrefs := FindElementsByClass(doc, SOURCES[FlagSrc])
 	l := len(hrefs)
 	for i := 0; i < l; i++ {
-		titles = append(titles, FindElementFromAttr(hrefs[i].FirstChild.FirstChild, "img", "title"))
+		titles = append(titles, FindElementFromAttr(hrefs[i].FirstChild.FirstChild, tag, attr))
 	}
 
 	elems := make(map[string]string, l)
 	for i := 0; i < l; i++ {
-		elems[titles[i]] = fmt.Sprintf("%s%s", FlagURL, FindElementFromAttr(hrefs[i], "a", "href"))
+		s := fmt.Sprintf("%s%s", FlagURL, FindElementFromAttr(hrefs[i], "a", "href"))
+		if strings.HasSuffix(s, ".pdf") || strings.HasSuffix(s, ".epub") {
+			log.Printf("Found a book link while parsing!\n")
+			elems[titles[i]] = s
+		} else if strings.HasSuffix(s, ".html") {
+			log.Printf("Found html link, don't know what to do with it, sorry! (!UNIMPLEMENTED!)\n")
+		}
 	}
 	return elems
 }

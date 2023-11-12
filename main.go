@@ -64,13 +64,17 @@ func main() {
 	log.Printf("Parsing body...\n")
 	doc, err := html.Parse(strings.NewReader(string(body)))
 	Check(err)
-	elems := MapElementsFormHTML(doc)
-	tits := PrintTitlesf(elems)
-	input := GetDownloadInput()
-	downloadIndicies := DownloadInputStringToIntSlice(input)
-	for i := 0; i < len(downloadIndicies); i++ {
-		log.Printf("Downloading %s\n", elems[tits[downloadIndicies[i]]])
-		DownloadWithClient(client, elems[tits[downloadIndicies[i]]], tits[downloadIndicies[i]])
-		log.Println("Finished.")
+	elems := MapElementsFromHTML(doc, "img", "title")
+	if len(elems) > 0 {
+		tits := PrintTitlesf(elems)
+		input := GetDownloadInput()
+		downloadIndicies := DownloadInputStringToIntSlice(input)
+		for i := 0; i < len(downloadIndicies); i++ {
+			log.Printf("Downloading %s\n", elems[tits[downloadIndicies[i]]])
+			DownloadWithClient(client, elems[tits[downloadIndicies[i]]], tits[downloadIndicies[i]])
+			log.Println("Finished.")
+		}
+	} else {
+		log.Printf("None found!\n")
 	}
 }
