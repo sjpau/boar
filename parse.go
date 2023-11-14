@@ -20,20 +20,35 @@ func MapElementsFromHTML(doc *html.Node, tag, attr string) map[string]string {
 	elems := make(map[string]string, l)
 	for i := 0; i < l; i++ {
 		s := fmt.Sprintf("%s%s", FlagURL, FindElementFromAttr(hrefs[i], "a", "href"))
+		log.Printf("Checking: %s\n", s)
 		if strings.HasSuffix(s, ".pdf") || strings.HasSuffix(s, ".epub") {
-			log.Printf("Found a book link while parsing!\n")
+			log.Printf("Found a pdf link while parsing!\n")
 			elems[titles[i]] = s
 		} else if strings.HasSuffix(s, ".html") {
 			log.Printf("Found html link, don't know what to do with it, sorry! (!UNIMPLEMENTED!)\n")
 		} else if strings.HasSuffix(s, ".jpg") || strings.HasSuffix(s, ".png") || strings.HasSuffix(s, ".jpeg") {
 			log.Printf("Found image link!\n")
-			if strings.Contains(s, "view?img=") {
-				s = strings.Replace(s, "view?img=", "", -1)
-			}
+			s = RemoveFromStr(s, "view?img=")
+			elems[titles[i]] = s
+		} else if strings.HasSuffix(s, ".mp4") || strings.HasSuffix(s, ".webm") || strings.HasSuffix(s, ".mkv") {
+			log.Printf("Found video link!\n")
+			s = RemoveFromStr(s, "watch?vid=")
+			elems[titles[i]] = s
+		} else if strings.HasSuffix(s, ".mp3") {
+			log.Printf("Found audio link!\n")
+			s = RemoveFromStr(s, "admeta?fadbk=")
 			elems[titles[i]] = s
 		}
 	}
 	return elems
+}
+
+func RemoveFromStr(s, strip string) string {
+	var news string
+	if strings.Contains(s, strip) {
+		news = strings.Replace(s, strip, "", -1)
+	}
+	return news
 }
 
 func FindElementsByClass(n *html.Node, targetClass string) []*html.Node {

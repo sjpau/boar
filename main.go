@@ -17,9 +17,9 @@ var (
 )
 
 /* NOTE: Unimplemented features */
+//TODO: add video and adbk sources
 var SOURCES = map[string]string{
 	"bk":   "book",
-	"art":  "article",
 	"img":  "images",
 	"vid":  "video",
 	"adbk": "audiobook",
@@ -61,7 +61,14 @@ func main() {
 	doc, err := html.Parse(strings.NewReader(string(body)))
 	Check(err)
 	var elems map[string]string
-	elems = MapElementsFromHTML(doc, "img", "title")
+	switch FlagSrc {
+	case "bk":
+		elems = MapElementsFromHTML(doc, "img", "title")
+	case "vid":
+		elems = MapElementsFromHTML(doc, "video", "src")
+	default:
+		elems = MapElementsFromHTML(doc, "img", "title")
+	}
 	if len(elems) > 0 {
 		tits := PrintTitlesf(elems)
 		input := GetDownloadInput()
