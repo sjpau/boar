@@ -25,6 +25,12 @@ func MapElementsFromHTML(doc *html.Node, tag, attr string) map[string]string {
 			elems[titles[i]] = s
 		} else if strings.HasSuffix(s, ".html") {
 			log.Printf("Found html link, don't know what to do with it, sorry! (!UNIMPLEMENTED!)\n")
+		} else if strings.HasSuffix(s, ".jpg") || strings.HasSuffix(s, ".png") || strings.HasSuffix(s, ".jpeg") {
+			log.Printf("Found image link!\n")
+			if strings.Contains(s, "view?img=") {
+				s = strings.Replace(s, "view?img=", "", -1)
+			}
+			elems[titles[i]] = s
 		}
 	}
 	return elems

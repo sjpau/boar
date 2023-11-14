@@ -40,13 +40,9 @@ func main() {
 	if FlagProxy == "" {
 		FlagProxy = TOR_PROXY
 	}
-
-	/* TODO: Add multiple sources
 	if FlagSrc == "" {
 		FlagSrc = "bk"
 	}
-	*/
-	FlagSrc = "bk"
 	client = NewTorProxyClient(FlagProxy)
 	log.Printf("Client is set.\n")
 	log.Printf("Setting request parameters...\n")
@@ -64,7 +60,8 @@ func main() {
 	log.Printf("Parsing body...\n")
 	doc, err := html.Parse(strings.NewReader(string(body)))
 	Check(err)
-	elems := MapElementsFromHTML(doc, "img", "title")
+	var elems map[string]string
+	elems = MapElementsFromHTML(doc, "img", "title")
 	if len(elems) > 0 {
 		tits := PrintTitlesf(elems)
 		input := GetDownloadInput()
